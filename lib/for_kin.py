@@ -19,7 +19,7 @@ def GST(theta):
     j = theta
 
     joint_angles = np.array([
-        [0,     0,      0   ], # mount->s0
+        #[0,     0,      0   ], # mount->s0
         [0,     0,      0   ], # mount->s0
         [0,     0,      j[0]], # mount->s0
         [0,     0,      j[1]], # s0->s1
@@ -29,7 +29,7 @@ def GST(theta):
         [0,     0,      j[5]], # w0->w1
         [0,     0,      j[6]], # w1->w2
         [0,     0,      0   ], # w2->hand
-        [0,     0,      0   ]  # hand->gripper
+        #[0,     0,      0   ]  # hand->gripper
     ], dtype=np.float32)
 
     _joint_translate = joint_translate.copy()
@@ -42,7 +42,7 @@ def GST(theta):
     end = start
     pre = np.eye(3)
     ret = []
-    for i in range(0, 10):
+    for i in range(0, len(joint_angles)-1):
         rm = np.dot(pre, mathlib.eular_to_rotation_matrix(joint_angles[i][0], joint_angles[i][1], joint_angles[i][2]))
         end = start+np.dot(rm, _joint_translate[i])
 
