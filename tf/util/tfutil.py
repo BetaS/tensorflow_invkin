@@ -16,10 +16,10 @@ def init_weights(shape, init_method='xavier', xavier_params = (None, None)):
 def _mlp(X, W, b):
     step = len(W)
 
-    result = tf.add(tf.matmul(X, W[0]), b[0])
+    result = tf.matmul(X, W[0]) + b[0]
 
     for i in range(1, step):
-        result = tf.add(tf.matmul(result, W[i]), b[i])
+        result = tf.matmul(result, W[i])# + b[i]
 
     return result
 
@@ -27,17 +27,16 @@ def _mlp(X, W, b):
 def _sigmoid_mlp(X, W, b):
     step = len(W)
 
-    results = []
-    results.append(tf.nn.sigmoid(tf.matmul(X, W[0]) + b[0]))
+    result = tf.nn.sigmoid(tf.matmul(X, W[0]) + b[0])
 
     for i in range(1, step-1):
-        results.append(tf.nn.sigmoid(tf.matmul(results[-1], W[i]) + b[i]))
+        result = tf.nn.sigmoid(tf.matmul(result, W[i]))# +b[i]
 
-    results.append(tf.matmul(results[-1], W[-1]) + b[-1])
+    result = tf.matmul(result, W[-1])# + b[-1]
 
-    print(results)
+    #result = tf.atan(result) * 180 / 3.141592 * 100
 
-    return results[-1]
+    return result
 
 def mlp(x, input_width, hidden_width, output_width, depth):
     weight = []
@@ -47,9 +46,9 @@ def mlp(x, input_width, hidden_width, output_width, depth):
     bias.append(init_weights([1, hidden_width], 'zeros'))
     for i in range(depth):
         weight.append(init_weights([hidden_width, hidden_width], 'xavier', xavier_params=(hidden_width, hidden_width)))
-        bias.append(init_weights([1, hidden_width], 'zeros'))
+        #bias.append(init_weights([1, hidden_width], 'zeros'))
 
     weight.append(init_weights([hidden_width, output_width], 'xavier', xavier_params=(hidden_width, output_width)))
-    bias.append(init_weights([1, output_width], 'zeros'))
+    #bias.append(init_weights([1, output_width], 'zeros'))
 
     return _sigmoid_mlp(x, weight, bias), weight, bias
