@@ -13,8 +13,8 @@ def generate_tc():
     return q
 
 if __name__ == "__main__":
-    f = open("testset_red.txt", "w")
-    for i in range(1000):
+    f = open("testset2.txt", "w")
+    for i in range(10000):
         theta = generate_tc()
         Gst = for_kin.GST(theta)
 

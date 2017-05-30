@@ -29,11 +29,11 @@ class MLPTrainer:
         # Define loss and optimizer
         #self.cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.pred, labels=y))
         #self.cost = tf.reduce_mean(self.pred-self.output_holder)
-        #self.cost = tf.nn.l2_loss(self.pred - self.output_holder)
+        self.cost = tf.nn.l2_loss(self.pred - self.output_holder)
 
         #self.optm = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(self.cost)
         #self.optm = tf.train.GradientDescentOptimizer(learning_rate).minimize(self.cost)
-        self.optm = tf.train.AdamOptimizer(learning_rate).minimize(tf.nn.l2_loss(self.pred - self.output_holder))
+        self.optm = tf.train.AdamOptimizer(learning_rate).minimize(self.cost)
 
         #self.corr = tf.equal(tf.argmax(self.pred, 1), tf.argmax(y, 1))
         #self.accr = tf.reduce_mean(tf.cast(self.corr, "float"))
@@ -50,7 +50,6 @@ class MLPTrainer:
 
             # Loop over all batches
 
-            """
             for start, end in zip(range(0, self.train_size, batch_size), range(batch_size, self.train_size, batch_size)):
                 self.sess.run(self.optm, feed_dict={self.input_holder: self.train_set["input"][start:end], self.output_holder: self.train_set["output"][start:end]})
             """
@@ -64,11 +63,12 @@ class MLPTrainer:
                 # Fit training using batch data
                 self.sess.run(self.optm, feed_dict={self.input_holder: batch_xs, self.output_holder: batch_ys})
 
+            """
 
             # Display logs per epoch step
             if epoch % display_epochs == 0:
-                cost = self.sess.run(tf.nn.l2_loss(self.pred - self.train_set["output"]), feed_dict={self.input_holder: self.train_set["input"]})
-                accr = self.sess.run(tf.nn.l2_loss(self.pred - self.test_set["output"]), feed_dict={self.input_holder: self.test_set["input"]})
+                cost = self.sess.run(self.cost, feed_dict={self.input_holder: self.train_set["input"], self.output_holder: self.train_set["output"]})
+                accr = self.sess.run(self.cost, feed_dict={self.input_holder: self.test_set["input"], self.output_holder: self.test_set["output"]})
                 print("Epoch: %03d/%03d cost: %.9f, accr : %.9f" % (epoch, training_epochs, cost, accr))
 
                 #print(" W: ", self.sess.run(self.weight), ", b:", self.sess.run(self.bias))
