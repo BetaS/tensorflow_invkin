@@ -1,5 +1,5 @@
 import matplotlib as mpl
-mpl.use('TkAgg')
+mpl.use('Qt5Agg')
 
 from pprint import pprint
 from mpl_toolkits.mplot3d import Axes3D
@@ -42,7 +42,7 @@ def zoom_factory(ax, base_scale = 2.):
                      ydata + cur_yrange*scale_factor])
         ax.set_zlim([zdata - cur_zrange*scale_factor,
                      zdata + cur_zrange*scale_factor])
-        #plt.draw() # force re-draw
+        plt.draw() # force re-draw
 
     fig = ax.get_figure() # get the figure of interest
     # attach the call back
@@ -97,7 +97,7 @@ def pan_factory(ax, dist=.25):
         ax.set_ylim([cur_ylim[0] + ydata,
                      cur_ylim[1] + ydata])
 
-        #plt.draw()  # force re-draw
+        plt.draw()  # force re-draw
 
     fig = ax.get_figure()  # get the figure of interest
     # attach the call back
@@ -165,7 +165,7 @@ def render_gst(ax, gst):
 
 
 if __name__ == "__main__":
-    plt.ion()
+    #plt.ion()
 
     ax = init_matplot()
 
@@ -174,8 +174,9 @@ if __name__ == "__main__":
 
     render_gst(ax, Gst)
 
-    #plt.show()
-
+    plt.show()
+    """
     while True:
         plt.draw()
         plt.pause(0.01)
+    """

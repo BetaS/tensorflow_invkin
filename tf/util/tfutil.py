@@ -1,36 +1,55 @@
 import tensorflow as tf
+import numpy as np
 
 
-def xavier_init(n_inputs, n_outputs, uniform=True):
-    if uniform:
-        init_range = tf.sqrt(6.0 / (n_inputs + n_outputs))
-        return tf.random_uniform_initializer(-init_range, init_range)
-    else:
-        stddev = tf.sqrt(3.0 / (n_inputs + n_outputs))
-    return tf.truncated_normal_initializer(stddev=stddev)
+def init_weights(shape, init_method='xavier', xavier_params = (None, None)):
+    if init_method == 'zeros':
+        return tf.Variable(tf.zeros(shape, dtype=tf.float32))
+    elif init_method == 'uniform':
+        return tf.Variable(tf.random_normal(shape, stddev=0.01, dtype=tf.float32))
+    else: #xavier
+        (fan_in, fan_out) = xavier_params
+        low = -4*np.sqrt(6.0/(fan_in + fan_out)) # {sigmoid:4, tanh:1}
+        high = 4*np.sqrt(6.0/(fan_in + fan_out))
+        return tf.Variable(tf.random_uniform(shape, minval=low, maxval=high, dtype=tf.float32))
 
-def _mlp(_X, _W, _b):
-    step = len(_W)
+def _mlp(X, W, b):
+    step = len(W)
 
-    result = tf.add(tf.matmul(_X, _W[0]), _b[0])
+    result = tf.add(tf.matmul(X, W[0]), b[0])
 
     for i in range(1, step):
-        result = tf.add(tf.matmul(result, _W[i]), _b[i])
+        result = tf.add(tf.matmul(result, W[i]), b[i])
 
     return result
 
 
-def mlp(x, input_width, hidden_width, output_width, depth, sigma_init=0.1):
+def _sigmoid_mlp(X, W, b):
+    step = len(W)
+
+    results = []
+    results.append(tf.nn.sigmoid(tf.matmul(X, W[0]) + b[0]))
+
+    for i in range(1, step-1):
+        results.append(tf.nn.sigmoid(tf.matmul(results[-1], W[i]) + b[i]))
+
+    results.append(tf.matmul(results[-1], W[-1]) + b[-1])
+
+    print(results)
+
+    return results[-1]
+
+def mlp(x, input_width, hidden_width, output_width, depth):
     weight = []
     bias = []
 
-    weight.append(tf.Variable(tf.random_normal([input_width, hidden_width], stddev = sigma_init)))
-    bias.append(tf.Variable(tf.random_normal([hidden_width])))
+    weight.append(init_weights([input_width, hidden_width], 'xavier', xavier_params=(input_width, hidden_width)))
+    bias.append(init_weights([1, hidden_width], 'zeros'))
     for i in range(depth):
-        weight.append(tf.Variable(tf.random_normal([hidden_width, hidden_width], stddev = sigma_init)))
-        bias.append(tf.Variable(tf.random_normal([hidden_width])))
+        weight.append(init_weights([hidden_width, hidden_width], 'xavier', xavier_params=(hidden_width, hidden_width)))
+        bias.append(init_weights([1, hidden_width], 'zeros'))
 
-    weight.append(tf.Variable(tf.random_normal([hidden_width, output_width], stddev = sigma_init)))
-    bias.append(tf.Variable(tf.random_normal([output_width])))
+    weight.append(init_weights([hidden_width, output_width], 'xavier', xavier_params=(hidden_width, output_width)))
+    bias.append(init_weights([1, output_width], 'zeros'))
 
-    return _mlp(x, weight, bias)
+    return _sigmoid_mlp(x, weight, bias), weight, bias
