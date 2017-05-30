@@ -50,6 +50,7 @@ class MLPTrainer:
 
             # Loop over all batches
 
+            """
             for start, end in zip(range(0, self.train_size, batch_size), range(batch_size, self.train_size, batch_size)):
                 self.sess.run(self.optm, feed_dict={self.input_holder: self.train_set["input"][start:end], self.output_holder: self.train_set["output"][start:end]})
             """
@@ -62,12 +63,13 @@ class MLPTrainer:
 
                 # Fit training using batch data
                 self.sess.run(self.optm, feed_dict={self.input_holder: batch_xs, self.output_holder: batch_ys})
-            """
+
 
             # Display logs per epoch step
             if epoch % display_epochs == 0:
-                cost = self.sess.run(tf.nn.l2_loss(self.pred - self.test_set["output"]), feed_dict={self.input_holder: self.test_set["input"]})
-                print("Epoch: %03d/%03d cost: %.9f" % (epoch, training_epochs, cost))
+                cost = self.sess.run(tf.nn.l2_loss(self.pred - self.train_set["output"]), feed_dict={self.input_holder: self.train_set["input"]})
+                accr = self.sess.run(tf.nn.l2_loss(self.pred - self.test_set["output"]), feed_dict={self.input_holder: self.test_set["input"]})
+                print("Epoch: %03d/%03d cost: %.9f, accr : %.9f" % (epoch, training_epochs, cost, accr))
 
                 #print(" W: ", self.sess.run(self.weight), ", b:", self.sess.run(self.bias))
                 """
@@ -77,10 +79,10 @@ class MLPTrainer:
                 test_acc = self.sess.run(self.cost, feed_dict={self.input_holder: self.test_set["input"], self.output_holder: self.test_set["output"]})
                 print(" Test accuracy: %.3f" % (test_acc))
                 """
-                p = self.sess.run(self.pred, feed_dict={self.input_holder: self.test_set["input"][0]})
-                p2 = self.test_set["output"][0]
-                print(p)
-                print(p2)
+                p = self.sess.run(self.pred, feed_dict={self.input_holder: self.test_set["input"][:5]})
+                p2 = self.test_set["output"][:5]
+                print(p.T)
+                print(p2.T)
 
     def finish(self):
         self.sess.close()

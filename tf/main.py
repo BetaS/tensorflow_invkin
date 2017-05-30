@@ -18,7 +18,7 @@ def load_file(file_path):
 
 if __name__ == "__main__":
     # Load them!
-    loadpath = "../testset_red.txt"
+    loadpath = "../testset1.txt"
     datas = load_file(loadpath)
 
     if not datas:
@@ -35,18 +35,18 @@ if __name__ == "__main__":
         inputs.append(list(map(lambda x: float(x), data[1:])))
         outputs.append(list(map(lambda x: float(x), data[:1])))
         """
-        inputs.append(list(map(lambda x: float(x), data[7:])))
-        outputs.append(list(map(lambda x: float(x), data[:7])))
+        inputs.append(list(map(lambda x: float(x), data[7:10])))
+        outputs.append(list(map(lambda x: float(x), data[:1])))
 
 
     # create TF networks
-    trainer = MLPTrainer(inputs, outputs, hidden_width=7, depth=100, learning_rate=0.01)
+    trainer = MLPTrainer(inputs, outputs, hidden_width=256, depth=1, learning_rate=0.01)
 
     # Construct model
     print("Optimization Finished!")
 
     #input("press any key")
-    trainer.training(training_epochs=1000, display_epochs=100, batch_size=100)
+    trainer.training(training_epochs=1000, display_epochs=10, batch_size=200)
     print("Training Finished!")
 
     trainer.finish()
