@@ -1,5 +1,5 @@
 import tensorflow as tf
-from tf.util.tfutil import mlp
+from tf.util.tfutil import mlp, radian_cost, degree_cost
 import numpy as np
 import time
 import matplotlib.pyplot as plt
@@ -34,12 +34,20 @@ class MLPTrainer:
         #self.cost = tf.reduce_mean(tf.square(self.pred-self.output_holder))
         #self.cost = tf.nn.l2_loss(self.pred - self.output_holder)
         #self.cost = tf.reduce_mean(tf.squared_difference(self.pred, self.output_holder))
-        self.cost = tf.reduce_mean(tf.abs(tf.tanh(self.pred-self.output_holder)))
+        #self.cost = tf.reduce_mean(tf.abs(tf.tanh(self.pred-self.output_holder)))
+        self.cost = tf.reduce_mean(degree_cost(self.pred, self.output_holder))
+        #self.cost = tf.nn.l2_loss(degree_cost(self.pred, self.output_holder))
+
+        #self.loss = tf.nn.softmax_cross_entropy_with_logits(logits=self.pred, labels=self.output_holder)
 
         self.optm = tf.train.GradientDescentOptimizer(learning_rate).minimize(self.cost)
         #self.optm = tf.train.AdamOptimizer(learning_rate).minimize(self.cost)
+        #self.optm = tf.train.AdagradOptimizer(learning_rate).minimize(self.cost)
+        #self.optm = tf.train.ProximalAdagradOptimizer(learning_rate).minimize(self.cost)
+        #self.optm = tf.train.MomentumOptimizer(learning_rate).minimize(self.cost)
 
-        self.corr = tf.losses.absolute_difference(self.pred, self.output_holder)
+        #self.corr = tf.losses.absolute_difference(self.pred, self.output_holder)
+        self.corr = tf.reduce_mean(degree_cost(self.pred, self.output_holder))
         #self.accr = tf.reduce_mean(tf.cast(self.corr, "float"))
 
         self.saver = tf.train.Saver()
@@ -55,6 +63,10 @@ class MLPTrainer:
         self.avgs = []
         self.accrs = []
         self.error_set = [[], [], [], [], [], [], []]
+
+        self.diff_input = tf.placeholder(tf.float32, [None, output_width])
+        self.diff_output = tf.placeholder(tf.float32, [None, output_width])
+        self.diff = degree_cost(self.diff_input, self.diff_output)
 
     def set_tester(self, input_set, output_set):
         self.test_size = len(input_set)
@@ -106,12 +118,16 @@ class MLPTrainer:
                 """
                 p = self.sess.run(self.pred, feed_dict={self.input_holder: self.test_set["input"][0]})
                 p2 = self.test_set["output"][0]
-                diff = (p2-p).T
+                #diff = (p2-p).T
+
+                diff = self.sess.run(self.diff, feed_dict={self.diff_input: p, self.diff_output: p2})
+                print(" diff: ", diff)
+                diff = diff.T
                 for i in range(len(diff)):
                     self.error_set[i].append(float(diff[i]))
 
         self.saver.save(self.sess, self.save_path)
-        print("Checkpoint saved")
+        #print("Checkpoint saved")
 
 
     def finish(self):

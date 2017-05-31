@@ -8,10 +8,10 @@ import matplotlib.pyplot as plt
 from GenForKin import generate_tc
 
 if __name__ == "__main__":
-    from_file = True
+    from_file = False
 
     # create TF networks
-    trainer = MLPTrainer(input_width=3, output_width=7, hidden_width=200, depth=0, learning_rate=0.0001, file_name="checkpoint_ik_all", from_file=from_file)
+    trainer = MLPTrainer(input_width=6, output_width=7, hidden_width=20, depth=3, learning_rate=0.05, file_name="checkpoint_ik_all", from_file=from_file)
 
     # create test set
     test_input = []
@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     for i in range(1000):
         case = generate_tc()
-        test_input.append(case[7:10])
+        test_input.append(case[7:])
         test_output.append(case[:7])
 
     trainer.set_tester(test_input, test_output)
@@ -40,17 +40,17 @@ if __name__ == "__main__":
         train_output = []
         for i in range(1000):
             case = generate_tc()
-            train_input.append(case[7:10])
+            train_input.append(case[7:])
             train_output.append(case[:7])
 
-        trainer.training(train_input, train_output, training_epochs=10, display_epochs=10, batch_size=100)
+        trainer.training(train_input, train_output, training_epochs=1, display_epochs=1, batch_size=100)
 
         idx += 1
         if idx % 1 == 0:
             ax1.clear()
             ax2.clear()
 
-            ax1.plot(trainer.accrs, label="valid set error")
+            #ax1.plot(trainer.accrs, label="valid set error")
             ax1.plot(trainer.avgs, label="train set error")
             ax1.set_xlabel('#epochs')
             ax1.set_ylabel('error(rad)')

@@ -8,11 +8,11 @@ import matplotlib.pyplot as plt
 from GenForKin import generate_tc
 
 if __name__ == "__main__":
-    joint_num = 1
-    from_file = True
+    joint_num = 6
+    from_file = False
 
     # create TF networks
-    trainer = MLPTrainer(input_width=6, output_width=1, hidden_width=100, depth=0, learning_rate=0.001, file_name="checkpoint_ik_q%d" % (joint_num + 1), from_file=from_file)
+    trainer = MLPTrainer(input_width=6, output_width=1, hidden_width=32, depth=5, learning_rate=0.5, file_name="checkpoint_ik_q%d" % (joint_num + 1), from_file=from_file)
 
     # create test set
     test_input = []
@@ -51,8 +51,8 @@ if __name__ == "__main__":
             ax1.clear()
             ax2.clear()
 
-            ax1.plot(trainer.accrs, label="accr (rad)")
-            ax1.plot(trainer.avgs, label="cost 0~1")
+            ax1.plot(trainer.accrs, label="accr (deg)")
+            ax1.plot(trainer.avgs, label="cost (deg)")
             ax1.set_xlabel('#epochs')
             ax1.set_ylabel('error')
             ax1.set_title("avg error")
@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
             ax2.set_xlabel('#epochs')
             ax2.set_ylabel('difference')
-            ax2.set_title("joint angle(rad)")
+            ax2.set_title("joint angle(deg)")
 
             ax2.plot(trainer.error_set[0],  label="q%d"%(joint_num+1))
 

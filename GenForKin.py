@@ -22,11 +22,11 @@ def generate_tc():
 
     result = []
     for p in theta:
-        result.append(p)
+        result.append(math.degrees(p))
     for p in pos:
         result.append(p*1000)
     for p in rad:
-        result.append(p)
+        result.append(math.degrees(p))
 
     return result
 
