@@ -34,12 +34,12 @@ class MLPTrainer:
         #self.cost = tf.reduce_mean(tf.square(self.pred-self.output_holder))
         #self.cost = tf.nn.l2_loss(self.pred - self.output_holder)
         #self.cost = tf.reduce_mean(tf.squared_difference(self.pred, self.output_holder))
-        self.cost = tf.reduce_mean(-tf.log(1-tf.abs(tf.tanh(self.pred-self.output_holder))))
+        self.cost = tf.reduce_mean(tf.abs(tf.tanh(self.pred-self.output_holder)))
 
         self.optm = tf.train.GradientDescentOptimizer(learning_rate).minimize(self.cost)
         #self.optm = tf.train.AdamOptimizer(learning_rate).minimize(self.cost)
 
-        #self.corr = tf.equal(tf.argmax(self.pred, 1), tf.argmax(y, 1))
+        self.corr = tf.losses.absolute_difference(self.pred, self.output_holder)
         #self.accr = tf.reduce_mean(tf.cast(self.corr, "float"))
 
         self.saver = tf.train.Saver()
@@ -65,7 +65,7 @@ class MLPTrainer:
         self.train_set = {"input": np.matrix(input_set), "output": np.matrix(output_set)}
 
         # Training cycle
-        for epoch in range(training_epochs):
+        for epoch in range(1, training_epochs+1):
             avg_cost = 0.
             total_batch = int(self.train_size / batch_size)
 
@@ -90,7 +90,7 @@ class MLPTrainer:
 
             # Display logs per epoch step
             if epoch % display_epochs == 0:
-                accr = self.sess.run(self.cost, feed_dict={self.input_holder: self.test_set["input"], self.output_holder: self.test_set["output"]})# / self.test_size
+                accr = self.sess.run(self.corr, feed_dict={self.input_holder: self.test_set["input"], self.output_holder: self.test_set["output"]})# / self.test_size
                 print("Epoch: %03d/%03d , avg: %.9f, accr : %.9f" % (epoch, training_epochs, avg_cost, accr))
 
                 self.avgs.append(avg_cost)

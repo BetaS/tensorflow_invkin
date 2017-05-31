@@ -9,8 +9,8 @@ def init_weights(shape, init_method='xavier', xavier_params = (None, None)):
         return tf.Variable(tf.random_normal(shape, stddev=0.01, dtype=tf.float32))
     else: #xavier
         (fan_in, fan_out) = xavier_params
-        low = -4*np.sqrt(6.0/(fan_in + fan_out)) # {sigmoid:4, tanh:1}
-        high = 4*np.sqrt(6.0/(fan_in + fan_out))
+        low = -1*np.sqrt(6.0/(fan_in + fan_out)) # {sigmoid:4, tanh:1}
+        high = 1*np.sqrt(6.0/(fan_in + fan_out))
         return tf.Variable(tf.random_uniform(shape, minval=low, maxval=high, dtype=tf.float32))
 
 def _mlp(X, W, b):
@@ -27,10 +27,10 @@ def _mlp(X, W, b):
 def _sigmoid_mlp(X, W, b):
     step = len(W)
 
-    result = tf.nn.sigmoid(tf.matmul(X, W[0]) + b[0])
+    result = tf.nn.tanh(tf.matmul(X, W[0]) + b[0])
 
     for i in range(1, step-1):
-        result = tf.nn.sigmoid(tf.matmul(result, W[i]))# +b[i]
+        result = tf.nn.tanh(tf.matmul(result, W[i]))# +b[i]
 
     result = tf.matmul(result, W[-1])# + b[-1]
 

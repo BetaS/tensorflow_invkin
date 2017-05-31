@@ -8,10 +8,10 @@ import matplotlib.pyplot as plt
 from GenForKin import generate_tc
 
 if __name__ == "__main__":
-    from_file = False
+    from_file = True
 
     # create TF networks
-    trainer = MLPTrainer(input_width=3, output_width=7, hidden_width=20, depth=1, learning_rate=0.01, file_name="checkpoint_ik_all", from_file=from_file)
+    trainer = MLPTrainer(input_width=3, output_width=7, hidden_width=200, depth=0, learning_rate=0.0001, file_name="checkpoint_ik_all", from_file=from_file)
 
     # create test set
     test_input = []
@@ -29,8 +29,8 @@ if __name__ == "__main__":
 
     plt.ion()
     fig = plt.figure(figsize=[10, 5])
-    ax1 = plt.axes([0.05, 0.05, 0.40, 0.9])
-    ax2 = plt.axes([0.55, 0.05, 0.40, 0.9])
+    ax1 = plt.axes([0.1, 0.1, 0.40, 0.9])
+    ax2 = plt.axes([0.55, 0.1, 0.40, 0.9])
 
     #input("press any key")
     idx = 0
@@ -43,7 +43,7 @@ if __name__ == "__main__":
             train_input.append(case[7:10])
             train_output.append(case[:7])
 
-        trainer.training(train_input, train_output, training_epochs=5, display_epochs=5, batch_size=10)
+        trainer.training(train_input, train_output, training_epochs=10, display_epochs=10, batch_size=100)
 
         idx += 1
         if idx % 1 == 0:
@@ -53,13 +53,13 @@ if __name__ == "__main__":
             ax1.plot(trainer.accrs, label="valid set error")
             ax1.plot(trainer.avgs, label="train set error")
             ax1.set_xlabel('#epochs')
-            ax1.set_ylabel('error(mm3)')
+            ax1.set_ylabel('error(rad)')
             ax1.set_title("avg error")
             ax1.legend(loc="upper left")
 
             ax2.set_xlabel('#epochs')
             ax2.set_ylabel('difference')
-            ax2.set_title("joint angle(deg)")
+            ax2.set_title("joint angle(rad)")
 
             for i in range(7):
                 ax2.plot(trainer.error_set[i],  label="q%d"%(i+1))

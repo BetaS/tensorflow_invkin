@@ -9,10 +9,10 @@ from GenForKin import generate_tc
 
 if __name__ == "__main__":
     joint_num = 1
-    from_file = False
+    from_file = True
 
     # create TF networks
-    trainer = MLPTrainer(input_width=3, output_width=1, hidden_width=30, depth=0, learning_rate=0.01, file_name="checkpoint_ik_q%d" % (joint_num + 1), from_file=from_file)
+    trainer = MLPTrainer(input_width=6, output_width=1, hidden_width=100, depth=0, learning_rate=0.001, file_name="checkpoint_ik_q%d" % (joint_num + 1), from_file=from_file)
 
     # create test set
     test_input = []
@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     for i in range(1000):
         case = generate_tc()
-        test_input.append(case[7:10])
+        test_input.append(case[7:])
         test_output.append(case[joint_num:joint_num+1])
 
     trainer.set_tester(test_input, test_output)
@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     plt.ion()
     fig = plt.figure(figsize=[10, 5])
-    ax1 = plt.axes([0.05, 0.05, 0.40, 0.9])
+    ax1 = plt.axes([0.1, 0.05, 0.40, 0.9])
     ax2 = plt.axes([0.55, 0.05, 0.40, 0.9])
 
     #input("press any key")
@@ -41,7 +41,7 @@ if __name__ == "__main__":
         train_output = []
         for i in range(1000):
             case = generate_tc()
-            train_input.append(case[7:10])
+            train_input.append(case[7:])
             train_output.append(case[joint_num:joint_num+1])
 
         trainer.training(train_input, train_output, training_epochs=1, display_epochs=1, batch_size=100)
@@ -51,16 +51,16 @@ if __name__ == "__main__":
             ax1.clear()
             ax2.clear()
 
-            ax1.plot(trainer.accrs, label="valid set error")
-            ax1.plot(trainer.avgs, label="train set error")
+            ax1.plot(trainer.accrs, label="accr (rad)")
+            ax1.plot(trainer.avgs, label="cost 0~1")
             ax1.set_xlabel('#epochs')
-            ax1.set_ylabel('error(mm3)')
+            ax1.set_ylabel('error')
             ax1.set_title("avg error")
             ax1.legend(loc="upper left")
 
             ax2.set_xlabel('#epochs')
             ax2.set_ylabel('difference')
-            ax2.set_title("joint angle(deg)")
+            ax2.set_title("joint angle(rad)")
 
             ax2.plot(trainer.error_set[0],  label="q%d"%(joint_num+1))
 
